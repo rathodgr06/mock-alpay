@@ -33,11 +33,11 @@ npm run dev
 npm start
 ```
 
-The server will start on `http://localhost:5000`
+The server will start on `http://localhost:5001`
 
 ## API Documentation
 
-### Base URL: `http://localhost:5000`
+### Base URL: `http://localhost:5001`
 
 ### Authentication
 
@@ -124,7 +124,7 @@ Request:
 **Failed Transactions:**
 - `233240000000`
 - `233200000000`
-- `233500000000`
+- `233500100000`
 
 **Pending Transactions:**
 - `233249999999`
@@ -168,7 +168,7 @@ The server returns appropriate status codes as per the API specification:
 ### 1. Login and Get Token
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/login \
+curl -X POST http://localhost:5001/api/v1/login \
   -H "Authorization: Basic ZGVtbzpkZW1vMTIz" \
   -H "Content-Type: application/json" \
   -d '{"username": "demo", "password": "demo123"}'
@@ -177,7 +177,7 @@ curl -X POST http://localhost:5000/api/v1/login \
 ### 2. Perform Name Enquiry
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/nameenquiry \
+curl -X POST http://localhost:5001/api/v1/nameenquiry \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -H "Content-Type: application/json" \
   -d '{
