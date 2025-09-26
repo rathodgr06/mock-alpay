@@ -105,18 +105,7 @@ Request:
 }
 ```
 
-### 4. Other Endpoints
 
-- `POST /api/v1/remittance` - Remittance Service
-- `POST /api/v1/debitmoney` - Debit Money Service
-- `POST /api/v1/transactionstatus` - Transaction Status
-- `POST /api/v1/balancecheck` - Balance Check
-- `POST /api/v1/createmandate` - Create Mandate
-- `POST /api/v1/directdebit` - Direct Debit
-- `POST /api/v1/cancelmandate` - Cancel Mandate
-- `POST /api/v2/nameenquiry` - Name Enquiry V2
-- `POST /api/v2/sendmoney` - Send Money V2
-- `POST /api/v2/remittance` - Remittance V2
 
 ## Test Data
 
@@ -198,7 +187,3 @@ curl -X POST http://localhost:5000/api/v1/nameenquiry \
     "transactionId": "TXN123456"
   }'
 ```
-
-### 3. Send Money
-
-# mock-alpay

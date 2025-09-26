@@ -129,7 +129,7 @@ const transactionStore = new Map();
 const mandateStore = new Map();
 
 // 1. Login API
-app.post('/api/Authentication/Login', (req, res) => {
+app.post('/api/Authentication/Login',basicAuth, (req, res) => {
   const { username, password } = req.body;
 //  Not provided username and password
   if (!username || !password) {
