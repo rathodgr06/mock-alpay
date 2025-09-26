@@ -1,0 +1,845 @@
+{
+	"info": {
+		"_postman_id": "alpay-payment-gateway-api",
+		"name": "Alpay Payment Gateway API",
+		"description": "Complete Postman collection for Alpay Payment Gateway API v1.4 Mock Server\n\nBase URL: http://localhost:5000\n\nAuthentication:\n1. Use Basic Auth for Login endpoint\n2. Use Bearer Token for all other endpoints\n\nTest Data:\nSuccess MSISDNs: 233241234567, 233201234567, 233501234567\nFailed MSISDNs: 233240000000, 233200000000, 233500000000\nPending MSISDNs: 233249999999, 233209999999, 233509999999",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "alpay-api-collection"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('bearer_token', response.token);",
+									"    pm.environment.set('username', response.username);",
+									"    console.log('Token saved:', response.token);",
+									"    pm.test('Login successful', function () {",
+									"        pm.expect(response.status).to.eql('200');",
+									"        pm.expect(response.token).to.be.a('string');",
+									"    });",
+									"} else {",
+									"    pm.test('Login failed', function () {",
+									"        pm.response.to.have.status(401);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "demo",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "demo123",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demo123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Name Enquiry Services",
+			"item": [
+				{
+					"name": "Name Enquiry V1 - Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains account name', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.statusCode).to.eql('200');",
+									"    pm.expect(response.data.accountName).to.be.a('string');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountNumber\": \"233241234567\",\n  \"channel\": \"INTERBANK\",\n  \"institutionCode\": \"300591\",\n  \"transactionId\": \"NE{{$timestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/nameenquiry",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"nameenquiry"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Name Enquiry V1 - Bank Account",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountNumber\": \"1234567890\",\n  \"channel\": \"INTERBANK\",\n  \"institutionCode\": \"300304\",\n  \"transactionId\": \"NE{{$timestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/nameenquiry",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"nameenquiry"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Name Enquiry V2 - Auto Detect Institution",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountNumber\": \"233201234567\",\n  \"channel\": \"INTERBANK\",\n  \"transactionId\": \"NE2{{$timestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v2/nameenquiry",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"nameenquiry"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Send Money Services",
+			"item": [
+				{
+					"name": "Send Money V1 - Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Transaction accepted for processing', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.statusCode).to.eql('200');",
+									"    pm.expect(response.data.transactionId).to.be.a('string');",
+									"});",
+									"",
+									"// Save transaction ID for status check",
+									"const response = pm.response.json();",
+									"if (response.data && response.data.transactionId) {",
+									"    pm.environment.set('last_transaction_id', response.data.transactionId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountName\": \"JOHN DOE\",\n  \"accountNumber\": \"233241234567\",\n  \"amount\": 100.00,\n  \"channel\": \"INTERBANK\",\n  \"institutionCode\": \"300591\",\n  \"transactionId\": \"SM{{$timestamp}}\",\n  \"creditNarration\": \"Payment for services\",\n  \"currency\": \"GHS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sendmoney",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sendmoney"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Money V1 - Failed",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountName\": \"FAILED ACCOUNT\",\n  \"accountNumber\": \"233240000000\",\n  \"amount\": 50.00,\n  \"channel\": \"INTERBANK\",\n  \"institutionCode\": \"300591\",\n  \"transactionId\": \"SMF{{$timestamp}}\",\n  \"creditNarration\": \"Test failed transaction\",\n  \"currency\": \"GHS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sendmoney",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sendmoney"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Money V1 - Pending",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountName\": \"PENDING ACCOUNT\",\n  \"accountNumber\": \"233249999999\",\n  \"amount\": 75.00,\n  \"channel\": \"INTERBANK\",\n  \"institutionCode\": \"300591\",\n  \"transactionId\": \"SMP{{$timestamp}}\",\n  \"creditNarration\": \"Test pending transaction\",\n  \"currency\": \"GHS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/sendmoney",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"sendmoney"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Money V2 - Mobile Auto Detect",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountNumber\": \"233501234567\",\n  \"amount\": 150.00,\n  \"channel\": \"INTERBANK\",\n  \"transactionId\": \"SM2{{$timestamp}}\",\n  \"creditNarration\": \"Mobile money transfer\",\n  \"currency\": \"GHS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v2/sendmoney",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"sendmoney"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Remittance Services",
+			"item": [
+				{
+					"name": "Remittance V1 - Success",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountName\": \"JANE SMITH\",\n  \"accountNumber\": \"233201234567\",\n  \"amount\": 550.00,\n  \"channel\": \"INTERBANK\",\n  \"institutionCode\": \"300594\",\n  \"transactionId\": \"REM{{$timestamp}}\",\n  \"creditNarration\": \"International remittance\",\n  \"currency\": \"USD\",\n  \"currencyAmount\": 100.00,\n  \"originCountryCode\": \"US\",\n  \"senderName\": \"MIKE JOHNSON\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/remittance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"remittance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remittance V2 - Auto Detect",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountNumber\": \"233241234567\",\n  \"amount\": 825.00,\n  \"channel\": \"INTERBANK\",\n  \"transactionId\": \"REM2{{$timestamp}}\",\n  \"creditNarration\": \"Family support\",\n  \"currency\": \"EUR\",\n  \"currencyAmount\": 150.00,\n  \"originCountryCode\": \"DE\",\n  \"senderName\": \"HANS MUELLER\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v2/remittance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"remittance"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Debit Money Services",
+			"item": [
+				{
+					"name": "Debit Money - Success",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountName\": \"KWAME ASANTE\",\n  \"accountNumber\": \"233501234567\",\n  \"amount\": 25.00,\n  \"channel\": \"MNO\",\n  \"institutionCode\": \"300592\",\n  \"transactionId\": \"DM{{$timestamp}}\",\n  \"debitNarration\": \"Service charge\",\n  \"currency\": \"GHS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/debitmoney",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"debitmoney"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Debit Money - Failed",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountName\": \"FAILED ACCOUNT\",\n  \"accountNumber\": \"233500000000\",\n  \"amount\": 30.00,\n  \"channel\": \"MNO\",\n  \"institutionCode\": \"300592\",\n  \"transactionId\": \"DMF{{$timestamp}}\",\n  \"debitNarration\": \"Test failed debit\",\n  \"currency\": \"GHS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/debitmoney",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"debitmoney"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mandate Services",
+			"item": [
+				{
+					"name": "Create Mandate - Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save transaction ID for mandate operations",
+									"const response = pm.response.json();",
+									"if (response.data && response.data.transactionId) {",
+									"    pm.environment.set('mandate_transaction_id', response.data.transactionId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accountNumber\": \"233241234567\",\n  \"accountName\": \"JOHN DOE\",\n  \"channel\": \"MNO\",\n  \"institutionCode\": \"300591\",\n  \"mandateNarration\": \"Monthly subscription payment\",\n  \"transactionId\": \"CM{{$timestamp}}\",\n  \"autoDebitCycle\": \"30\",\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-12-31\",\n  \"currency\": \"GHS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/createmandate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"createmandate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Direct Debit - Success",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"channel\": \"MNO\",\n  \"institutionCode\": \"300591\",\n  \"accountNumber\": \"233241234567\",\n  \"accountName\": \"JOHN DOE\",\n  \"debitNarration\": \"Monthly subscription\",\n  \"transactionId\": \"DD{{$timestamp}}\",\n  \"amount\": 20.00,\n  \"mandateID\": \"MAN1640780156382\",\n  \"mandateReference\": \"REF1640780156382\",\n  \"currency\": \"GHS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/directdebit",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"directdebit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Mandate",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"channel\": \"MNO\",\n  \"institutionCode\": \"300591\",\n  \"accountNumber\": \"233241234567\",\n  \"transactionId\": \"CNL{{$timestamp}}\",\n  \"mandateID\": \"MAN1640780156382\",\n  \"mandateReference\": \"REF1640780156382\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/cancelmandate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"cancelmandate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Utility Services",
+			"item": [
+				{
+					"name": "Transaction Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transactionId\": \"{{last_transaction_id}}\",\n  \"transactionType\": \"CREDIT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/transactionstatus",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"transactionstatus"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Balance Check",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearer_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"demo123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/balancecheck",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"balancecheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "API Info (Swagger)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/swagger/index.html",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"swagger",
+								"index.html"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "bearer_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "last_transaction_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "mandate_transaction_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

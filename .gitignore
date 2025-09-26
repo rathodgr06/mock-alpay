@@ -1,0 +1,19 @@
+# Dependency directories
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.test
+.env.local
+
+# Optional cache directories
+.cache/
+dist/
+build/
+tmp/
