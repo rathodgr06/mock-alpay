@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const PORT = 3001;
+const PORT = 4001;
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -140,7 +140,7 @@ app.get("/OM/Transaction/Status", (req, res) => {
     exec_code: 200,
     exec_msg: "Success",
     resultset: {
-      TXNSTATUS: tx.status,
+      TXNStatus: tx.status,
     },
   });
 });
@@ -176,6 +176,44 @@ app.get("/CRM/Subscriber/Detail/Identification", (req, res) => {
     },
   });
 });
+
+//*******************************************
+//***************** PAYOUT ******************
+//*******************************************
+
+
+// ================================
+// POST /Merchant/Balance/OM/Transfer
+// ================================
+app.post("/Merchant/Balance/OM/Transfer", (req, res) => {
+   const auth = req.query.auth ? JSON.parse(req.query.auth) : req.body.auth;
+  const param = req.query.param ? JSON.parse(req.query.param) : req.body.param;
+
+  if (!isValidAuth(auth)) {
+    return res
+      .status(401)
+      .json({ exec_code: 401, exec_msg: "Invalid credentials" });
+  }
+
+  const { msisdn } = param || {};
+  if (!msisdn) {
+    return res
+      .status(400)
+      .json({ exec_code: 400, exec_msg: "Missing msisdn" });
+  }
+
+  const txnId = generateTxnId();
+
+  // Return static mock data
+  return res.status(200).json({
+    exec_code: 0,
+    exec_msg: "Success",
+    resultset: {
+      TXNID: txnId,
+    },
+  });
+});
+
 
 // ================================
 // Start Server
