@@ -13,7 +13,7 @@ const jwt = require("jsonwebtoken");   // npm install jsonwebtoken
 const { v4: uuidv4 } = require("uuid"); // npm install uuid
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 app.use(bodyParser.json());
 
@@ -186,6 +186,149 @@ app.get("/collection/v1_0/requesttopay/:referenceId", (req, res) => {
     amount: tx.amount,
     currency: tx.currency,
     payer: tx.payer,
+    status: tx.status
+  };
+
+  return res.status(200).json(response);
+});
+
+// =============================
+// 📥 POST Request to Pay Status
+// =============================
+app.post("/disbursement/token/", (req, res) => {
+  const subscriptionKey = req.header("Ocp-Apim-Subscription-Key");
+  const authHeader = req.header("Authorization");
+
+  console.log("🔑 Token request received");
+  console.log("📌 Subscription-Key:", subscriptionKey);
+  console.log("📌 Authorization:", authHeader);
+
+  if (!subscriptionKey || !authHeader) {
+    return res.status(400).json({ error: "Missing required headers" });
+  }
+
+  if (
+    subscriptionKey !== VALID_SUBSCRIPTION_KEY ||
+    authHeader !== VALID_AUTHORIZATION
+  ) {
+    return res.status(401).json({
+      error: "Unauthorized",
+      message: "Invalid Ocp-Apim-Subscription-Key or Authorization"
+    });
+  }
+
+  // JWT payload
+  const payload = {
+    clientId: "b5ddc6e2-529b-438f-ae70-c1ae5b50a487",
+    expires: generateExpiry(),
+    sessionId: uuidv4()
+  };
+
+  // Sign JWT (HS256 mock)
+  const token = jwt.sign(payload, JWT_SECRET, { algorithm: "HS256" });
+
+  const tokenResponse = {
+    access_token: token,
+    token_type: "Bearer",
+    expires_in: 3600
+  };
+
+  return res.status(200).json(tokenResponse);
+});
+
+// =============================
+// 📩 POST disbursement/v1_0/transfer
+// =============================
+app.post("/disbursement/v1_0/transfer", (req, res) => {
+  const Authorization = req.header("Authorization");
+  const xCallbackUrl = req.header("X-Callback-Url");
+  const referenceId = req.header("X-Reference-Id");
+  const xTargetEnvironment = req.header("X-Target-Environment");
+  console.log(`📩 referenceId on pay: ${referenceId}`);
+  console.log("📦 Incoming body:", JSON.stringify(req.body, null, 2));
+
+  if (!Authorization) {
+    return res.status(400).json({ message: "Missing Bearer Authentication" });
+  }
+
+  if (!referenceId) {
+    return res.status(400).json({ message: "Missing X-Reference-Id header" });
+  }
+
+  if (!xTargetEnvironment) {
+    return res.status(400).json({ message: "Missing X-Target-Environment header" });
+  }
+
+  const {
+    amount,
+    currency,
+    externalId,
+    payee,
+    payerMessage,
+    payeeNote
+  } = req.body;
+
+  if (!amount || !currency || !payee?.partyIdType || !payee?.partyId) {
+    return res.status(400).json({ message: "Missing required fields in body" });
+  }
+
+  const finalExternalId = externalId || generateRandom10DigitId();
+  const status = getStatusFromMsisdn(payee.partyId);
+
+  const transaction = {
+    amount,
+    currency,
+    financialTransactionId: generateRandom10DigitId(),
+    externalId: finalExternalId,
+    referenceId,
+    payee,
+    payerMessage,
+    payeeNote,
+    status,
+    timestamp: new Date().toISOString()
+  };
+
+  transactions.set(referenceId, transaction);
+
+  if (status === "PENDING") {
+    schedulePendingToFinalStatus(referenceId);
+  }
+
+  return res.status(202).json({ message: "Request to pay accepted" });
+});
+
+// =============================
+// 📩 GET disbursement/v1_0/transfer/{referenceId}
+// =============================
+app.get("/disbursement/v1_0/transfer/:referenceId", (req, res) => {
+  const Authorization = req.header("Authorization");
+  const xTargetEnvironment = req.header("X-Target-Environment");
+
+  if (!Authorization) {
+    return res.status(400).json({ message: "Missing Bearer Authentication" });
+  }
+  if (!xTargetEnvironment) {
+    return res.status(400).json({ message: "Missing X-Target-Environment header" });
+  }
+
+
+  const { referenceId } = req.params;
+  console.log(`📥 Fetching transaction status for: ${referenceId}`);
+
+  if (!transactions.has(referenceId)) {
+    return res.status(404).json({ message: "Transaction not found" });
+  }
+
+  const tx = transactions.get(referenceId);
+
+  const response = {
+    amount: tx.amount,
+    currency: tx.currency,
+    financialTransactionId: tx.financialTransactionId,
+    externalId: tx.externalId,
+    payee: tx.payee,
+    payerMessage: tx.payerMessage,
+    payeeNote: tx.payeeNote,
     status: tx.status
   };
 
